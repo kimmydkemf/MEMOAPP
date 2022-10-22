@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import reb.or.kr.app1_memo.databinding.ActivityMemoModifyBinding
@@ -61,9 +62,33 @@ class MemoModifyActivity : AppCompatActivity() {
         }.start()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.modify_menu,menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             android.R.id.home->{
+                finish()
+            }
+            // 저장
+            R.id.memo_modify_save->{
+                val helper = DBHelper(this)
+                val sql="""
+                    update MemoTable
+                    set memo_subject =?, memo_text =?
+                    where memo_idx=?
+                """.trimIndent()
+
+                val memo_subject=binding.memoModifySubject.text
+                val memo_text=binding.memoModifyText.text
+                val memo_idx=intent.getIntExtra("memo_idx",0)
+
+                var args= arrayOf(memo_subject,memo_text,memo_idx.toString())
+
+                helper.writableDatabase.execSQL(sql,args)
+                helper.writableDatabase.close()
                 finish()
             }
         }
